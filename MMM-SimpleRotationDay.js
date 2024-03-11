@@ -21,6 +21,8 @@ Module.register("MMM-SimpleRotationDay", {
 		// rotation calendar name as defined in default 'calendar' module
         rotationCalendar: "",
         rotationSchedule: [],
+		showTomorrowRotation: true,
+		tomorrowRotationStartsFrom: 18,
 	  },
 
 	start: function () {
@@ -34,7 +36,7 @@ Module.register("MMM-SimpleRotationDay", {
 	},
 
     getHeader: function() {
-		return "Rotation today"
+		return "Rotation day"
 	},
 
     notificationReceived: function(notification, payload, sender) {
@@ -59,14 +61,27 @@ Module.register("MMM-SimpleRotationDay", {
         
         events = this.events;
         today = new Date();
+		var hour = today.getHours();
+
+		// get tomorrow date
+		var tomorrow = new Date();
+		tomorrow.setDate(today.getDate() + 1);
+
+		if (hour >= this.config.tomorrowRotationStartsFrom
+			&& this.config.showTomorrowRotation
+		  ) {
+			eventDate = tomorrow
+		} else {
+			eventDate = today
+		}
 
         for (var e in events) {
 			var event = events[e];
-            if(today.getDate() == event.startDate.getDate() 
-                && today.getFullYear() == event.startDate.getFullYear() 
-                && today.getMonth() == event.startDate.getMonth()) {
+            if(eventDate.getDate() == event.startDate.getDate() 
+                && eventDate.getFullYear() == event.startDate.getFullYear() 
+                && eventDate.getMonth() == event.startDate.getMonth()) {
 
-                    Log.log("Rotation today: " + event.title)
+                    Log.log("Rotation: " + event.title)
 
                     schedules = this.config.rotationSchedules;
                     for (var s in schedules) {
