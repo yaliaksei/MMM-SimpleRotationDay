@@ -35,17 +35,12 @@ Module.register("MMM-SimpleRotationDay", {
 		}, this.config.updateInterval);
 	},
 
-    getHeader: function() {
-		return "Rotation day"
-	},
-
     notificationReceived: function(notification, payload, sender) {
 	    if (notification === "CALENDAR_EVENTS") {
 			this.events = payload.map(e => {
                 e.startDate = new Date(+e.startDate);
 				return e;
 			}).filter( e => {
-                Log.log("Process event for calendar " + e.calendarName);
 				if (e.calendarName == this.config.rotationCalendar) {
 					return true;
 				}
@@ -71,9 +66,15 @@ Module.register("MMM-SimpleRotationDay", {
 			&& this.config.showTomorrowRotation
 		  ) {
 			eventDate = tomorrow
+			headerWrapper = document.createElement("tr");
+			headerWrapper.innerHTML = "Tomorrow"
 		} else {
 			eventDate = today
+			headerWrapper = document.createElement("tr");
+			headerWrapper.innerHTML = "Today"
 		}
+
+		wrapper.appendChild(headerWrapper);
 
         for (var e in events) {
 			var event = events[e];
@@ -81,19 +82,17 @@ Module.register("MMM-SimpleRotationDay", {
                 && eventDate.getFullYear() == event.startDate.getFullYear() 
                 && eventDate.getMonth() == event.startDate.getMonth()) {
 
-                    Log.log("Rotation: " + event.title)
-
                     schedules = this.config.rotationSchedules;
                     for (var s in schedules) {
                         
                         studentName = schedules[s].studentName;
                         Log.log("Getting rotation for " + studentName)        
                         for (var r in schedules[s].days) {
-                            Log.log("Inspecting day " + schedules[s].days[r].day);
                             if (schedules[s].days[r].day == event.title) {
                                 eventWrapper = document.createElement("tr");
+								eventWrapper.innerHTML = studentName;
                                 titleWrapper = document.createElement("td");
-                                titleWrapper.innerHTML = event.title;
+                                titleWrapper.innerHTML = schedules[s].days[r].encore;
                                 eventWrapper.appendChild(titleWrapper);
                                 wrapper.appendChild(eventWrapper);
                             }
